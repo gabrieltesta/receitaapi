@@ -23,8 +23,7 @@ class RecipeRequest extends FormRequest
     {
         return [
             'title'         => ['required'],
-            'description'   => ['required'],
-            'user_id'       => ['required', 'exists:users,id']
+            'description'   => ['required']
         ];
     }
 }

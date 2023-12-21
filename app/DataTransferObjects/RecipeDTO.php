@@ -25,7 +25,7 @@ class RecipeDTO
         return new self(
             title: $request->validated('title'),
             description: $request->validated('description'),
-            userId: $request->validated('user_id')
+            userId: auth('api')->user()->id,
         );
     }
 }
