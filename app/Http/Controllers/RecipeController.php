@@ -30,8 +30,5 @@ class RecipeController extends Controller
         return RecipeResource::make(
             $recipe
         );
-//        return response()->json([
-//            'recipe' => $recipe
-//        ]);
     }
 }

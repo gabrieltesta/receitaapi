@@ -14,6 +14,12 @@ class RecipeDTO
     {
     }
 
+    /**
+     * Creates a new DTO from the request object
+     *
+     * @param RecipeRequest $request
+     * @return RecipeDTO
+     */
     public static function fromApiRequest(RecipeRequest $request): RecipeDTO
     {
         return new self(
