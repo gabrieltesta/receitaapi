@@ -23,5 +23,10 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
+
+        Passport::tokensCan([
+            'access-recipe' => 'Create, alter and delete your recipes',
+            'access-users'  => 'Read your user data'
+        ]);
     }
 }

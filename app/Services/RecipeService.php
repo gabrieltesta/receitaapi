@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
+use App\DataTransferObjects\RecipeDTO;
 use App\Models\Recipe;
 
 class RecipeService
 {
 
-    public function store(string $title, string $description, int $userId) {
+    public function store(RecipeDTO $dto) {
         return Recipe::create([
-            'title'         => $title,
-            'description'   => $description,
-            'user_id'       => $userId
+            'title'         => $dto->title,
+            'description'   => $dto->description,
+            'user_id'       => $dto->userId
         ]);
     }
 }

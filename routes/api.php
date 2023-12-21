@@ -15,14 +15,14 @@ use App\Http\Controllers\RecipeController;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware(['auth:api', 'scopes:access-users'])->get('/user', function (Request $request) {
     return $request->user()->makeVisible([
         'email'
     ]);
 });
 
 Route::middleware('auth:api')->group(function() {
-    Route::resource('/recipe', RecipeController::class);
+    Route::resource('/recipe', RecipeController::class)->middleware('scopes:access-recipe');
 
 });
 

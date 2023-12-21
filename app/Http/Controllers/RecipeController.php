@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\RecipeDTO;
 use App\Http\Requests\RecipeRequest;
+use App\Http\Resources\RecipeResource;
 use App\Models\Recipe;
 use App\Services\RecipeService;
 use Illuminate\Http\JsonResponse;
@@ -18,17 +20,18 @@ class RecipeController extends Controller
 
     /**
      * @param RecipeRequest $request
-     * @return JsonResponse
+     * @return RecipeResource
      */
-    public function store(RecipeRequest $request): JsonResponse {
-        $recipe = $this->service->store(
-            $request->get('title'),
-            $request->get('description'),
-            $request->get('user_id')
-        );
+    public function store(RecipeRequest $request): RecipeResource
+    {
+        $recipe = $this->service->store(RecipeDTO::fromApiRequest($request));
 
-        return response()->json([
-            'recipe' => $recipe
-        ]);
+
+        return RecipeResource::make(
+            $recipe
+        );
+//        return response()->json([
+//            'recipe' => $recipe
+//        ]);
     }
 }
