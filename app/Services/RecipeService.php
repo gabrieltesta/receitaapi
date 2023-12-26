@@ -38,10 +38,40 @@ class RecipeService
     }
 
     /**
+     * Returns a single recipe entity
+     *
      * @param int $id
      * @return Recipe
      */
     public function show(int $id): Recipe {
         return Recipe::findOrFail($id);
+    }
+
+
+    /**
+     * Deletes the recipe register
+     *
+     * @param int $id
+     * @return int
+     */
+    public function destroy(int $id): int
+    {
+        return Recipe::destroy($id);
+    }
+
+
+    /**
+     * Updates the recipe register
+     *
+     * @param int|Recipe $recipe
+     * @param RecipeDTO $data
+     * @return Recipe
+     */
+    public function update(int|Recipe $recipe, RecipeDTO $data): Recipe
+    {
+        if(!$recipe instanceof Recipe)
+            $recipe = Recipe::findOrFail($recipe);
+
+        return tap($recipe)->update($data->toArray());
     }
 }

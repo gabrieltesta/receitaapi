@@ -15,6 +15,7 @@ use Tests\TestCase;
 class RecipesTest extends TestCase
 {
     use RefreshDatabase;
+    use WithFaker;
 
     private User $user;
 
@@ -154,13 +155,98 @@ class RecipesTest extends TestCase
 
     public function test_user_blocked_from_deleting_other_user_recipes()
     {
-        
+        $newUser = User::factory()->create();
+        $this->actAsUser(['access-recipe'], $newUser);
+
+        $recipe = Recipe::factory()->create();
+
+        $response = $this->deleteJson("/api/recipe/{$recipe->id}");
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 
-    private function actAsUser(array $scopes = []): void
+    public function test_deleting_recipes_not_found() {
+        $response = $this->deleteJson("/api/recipe/500");
+
+        $response->assertStatus(Response::HTTP_NOT_FOUND);
+    }
+
+    public function test_unauthorized_user_blocked_from_updating_recipes()
+    {
+        $this->actAsUser();
+
+        $recipe = Recipe::factory()->create();
+        $updatedData = [
+            'title' => Str::random(50),
+            'description' => Str::random(255),
+        ];
+
+        $response = $this->putJson("/api/recipe/{$recipe->id}", $updatedData);
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
+    }
+
+    public function test_user_blocked_from_updating_other_user_recipes()
+    {
+        $newUser = User::factory()->create();
+        $this->actAsUser(['access-recipe'], $newUser);
+
+        $recipe = Recipe::factory()->create();
+
+        $updatedData = [
+            'title' => fake()->text(rand(10,20)),
+            'description' => fake()->text(),
+        ];
+
+        $response = $this->putJson("/api/recipe/{$recipe->id}", $updatedData);
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
+    }
+
+    public function test_updating_recipes_validation() {
+        $recipe = Recipe::factory()->create();
+
+        $updatedData = [
+            'title' => '',
+            'description' => '',
+        ];
+
+        $response = $this->putJson("/api/recipe/{$recipe->id}", $updatedData);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function test_updating_recipes_validation_length() {
+        $recipe = Recipe::factory()->create();
+
+        $updatedData = [
+            'title' => Str::random(256),
+            'description' => Str::random(256),
+        ];
+
+        $response = $this->putJson("/api/recipe/{$recipe->id}", $updatedData);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function test_updating_recipes_successfull() {
+        $recipe = Recipe::factory()->create();
+
+        $updatedData = [
+            'title' => fake()->text(rand(10,20)),
+            'description' => fake()->text(),
+        ];
+
+        $response = $this->putJson("/api/recipe/{$recipe->id}", $updatedData);
+
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJsonFragment($updatedData);
+    }
+
+    private function actAsUser(array $scopes = [], User $user = null): void
     {
         Passport::actingAs(
-            $this->user,
+            $user ?? $this->user,
             $scopes
         );
     }

@@ -11,6 +11,7 @@ use App\Services\RecipeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 class RecipeController extends Controller
 {
@@ -55,6 +56,42 @@ class RecipeController extends Controller
     public function show(int $id): RecipeResource
     {
         $recipe = $this->service->show($id);
+
+        return RecipeResource::make($recipe);
+    }
+
+
+    /**
+     * Deletes the recipe record if current user is owner, and record exists
+     *
+     * @param int $id
+     * @return JsonResponse|RecipeResource
+     */
+    public function destroy(int $id): JsonResponse|RecipeResource
+    {
+        $recipe = Recipe::findOrFail($id);
+        if($recipe->user_id != auth()->user()->id)
+            return response()->json([])->setStatusCode(Response::HTTP_FORBIDDEN);
+
+        $this->service->destroy($id);
+
+        return RecipeResource::make($recipe);
+    }
+
+
+    /**
+     * Updates the recipe record if current user is owner, and record exists
+     *
+     * @param int $id
+     * @return JsonResponse|RecipeResource
+     */
+    public function update(int $id, RecipeRequest $request): JsonResponse|RecipeResource
+    {
+        $recipe = Recipe::findOrFail($id);
+        if($recipe->user_id != auth()->user()->id)
+            return response()->json([])->setStatusCode(Response::HTTP_FORBIDDEN);
+
+        $recipe = $this->service->update($recipe, RecipeDTO::fromApiRequest($request));
 
         return RecipeResource::make($recipe);
     }

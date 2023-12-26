@@ -28,4 +28,16 @@ class RecipeDTO
             userId: auth('api')->user()->id,
         );
     }
+
+    /**
+     * Returns current DTO to array
+     *
+     * @return array
+     */
+    public function toArray(): array {
+        return [
+            'title' => $this->title,
+            'description' => $this->description,
+        ];
+    }
 }
